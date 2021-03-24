@@ -61,7 +61,7 @@ There are mainly three modules:
 
 After recorded on the backoffice database all the transactions are sent to a Kafka Broker, and each microservice consumes them in a different group from the same topic, picture helps to understand:
 <p align="center">
-<img src="img/project_logo.png" alt="Logo" width="800" height="500" class="center">
+<img src="img/project_diagram.png" alt="Logo" width="800" height="500" class="center">
 </p>
 
 ### Built With
