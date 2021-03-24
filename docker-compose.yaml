@@ -1,0 +1,125 @@
+version: '3.8'
+
+services:
+  backoffice:
+    build:
+      context: ./backoffice
+      dockerfile: Dockerfile
+    ports:
+      - 8000:8000
+    networks:
+      - python_micro
+    volumes:
+      - ./backoffice:/app
+    depends_on:
+      - database_bo
+
+  database_bo:
+    image: mysql:5.7.22
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: admin
+      MYSQL_USER: root
+      MYSQL_PASSWORD: root
+      MYSQL_ROOT_PASSWORD: root
+    networks:
+      - python_micro
+    volumes:
+      - ./backoffice/db_data:/var/lib/mysql
+    ports:
+      - 3306:3306
+
+  customer_metrics:
+    build:
+      context: ./customer_metrics
+      dockerfile: Dockerfile
+    ports:
+      - 8001:5000
+    networks:
+      - python_micro
+    volumes:
+      - ./customer_metrics:/app
+    depends_on:
+      - database_cm
+
+  database_cm:
+    image: mysql:5.7.22
+    restart: unless-stopped
+    hostname: db_cust_metrics
+    environment:
+      MYSQL_DATABASE: customer_metrics
+      MYSQL_USER: root
+      MYSQL_PASSWORD: root
+      MYSQL_ROOT_PASSWORD: root
+    networks:
+      - python_micro
+    volumes:
+      - ./customer_metrics/db_data:/var/lib/mysql
+    ports:
+      - 3307:3306
+
+  kafdrop:
+    image: obsidiandynamics/kafdrop
+    hostname: kafdropexit
+    restart: "no"
+    ports:
+      - "9000:9000"
+    networks:
+      - python_micro
+    environment:
+      KAFKA_BROKERCONNECT: "kafka:29092"
+      JVM_OPTS: "-Xms16M -Xmx48M -Xss180K -XX:-TieredCompilation -XX:+UseStringDeduplication -noverify"
+    depends_on:
+      - "kafka"
+  kafka:
+    image: obsidiandynamics/kafka
+    hostname: kafka_broker
+    restart: "no"
+    ports:
+      - "2181:2181"
+      - "9092:9092"
+    networks:
+      - python_micro
+    environment:
+      KAFKA_LISTENERS: "INTERNAL://:29092,EXTERNAL://:9092"
+      KAFKA_ADVERTISED_LISTENERS: "INTERNAL://kafka:29092,EXTERNAL://localhost:9092"
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: "INTERNAL:PLAINTEXT,EXTERNAL:PLAINTEXT"
+      KAFKA_INTER_BROKER_LISTENER_NAME: "INTERNAL"
+      KAFKA_ZOOKEEPER_SESSION_TIMEOUT: "6000"
+      KAFKA_RESTART_ATTEMPTS: "10"
+      KAFKA_RESTART_DELAY: "5"
+      ZOOKEEPER_AUTOPURGE_PURGE_INTERVAL: "0"
+
+
+  shop_metrics:
+    build:
+      context: ./shop_metrics
+      dockerfile: Dockerfile
+    ports:
+      - 8002:5000
+    networks:
+      - python_micro
+    volumes:
+      - ./shop_metrics:/app
+    depends_on:
+      - database_sm
+
+  database_sm:
+    image: mysql:5.7.22
+    restart: unless-stopped
+    hostname: db_shop_metrics
+    environment:
+      MYSQL_DATABASE: shop_metrics
+      MYSQL_USER: root
+      MYSQL_PASSWORD: root
+      MYSQL_ROOT_PASSWORD: root
+    networks:
+      - python_micro
+    volumes:
+      - ./shop_metrics/db_data:/var/lib/mysql
+    ports:
+      - 3308:3306
+
+networks:
+  python_micro:
+    driver: bridge

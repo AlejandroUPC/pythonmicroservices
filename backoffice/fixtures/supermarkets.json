@@ -1,0 +1,27 @@
+[
+    {
+        "model": "transactions.supermarket",
+        
+        "fields": {
+            "supermarket_id": "1",
+            "supermarket_name": "AmazonGroceries",
+            "register_date": "2011-09-01"
+        }
+    },
+    {
+        "model": "transactions.supermarket",
+        "fields": {
+            "supermarket_id": "2",
+            "supermarket_name": "GoogleShopping",
+            "register_date": "2015-09-11"
+        }
+    },
+    {
+        "model": "transactions.supermarket",
+        "fields": {
+            "supermarket_id": "3",
+            "supermarket_name": "FacebookMarket",
+            "register_date": "2013-10-01"
+        }
+    }
+]

@@ -1,0 +1,35 @@
+version: '3.8'
+
+services:
+  customer_metrics:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - 8001:5000
+    networks:
+      - python_micro
+    volumes:
+      - .:/app
+    depends_on:
+      - database
+
+  database:
+    image: mysql:5.7.22
+    restart: unless-stopped
+    hostname: db_cust_metrics
+    environment:
+      MYSQL_DATABASE: customer_metrics
+      MYSQL_USER: root
+      MYSQL_PASSWORD: root
+      MYSQL_ROOT_PASSWORD: root
+    networks:
+      - python_micro
+    volumes:
+      - ./backoffice/db_data:/var/lib/mysql
+    ports:
+      - 3307:3306
+
+networks:
+  python_micro:
+    driver: bridge
